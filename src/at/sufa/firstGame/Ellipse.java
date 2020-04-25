@@ -1,4 +1,4 @@
-package at.sufa.games;
+package at.sufa.firstGame;
 
 import org.newdawn.slick.Graphics;
 
@@ -26,13 +26,13 @@ public class Ellipse implements Actor {
             case RIGHT:
                 this.x += (float) delta / this.speed;
                 if (this.x > 800) {
-                    this.x = 0;
+                    this.x = (-this.width);
                 }
                 break;
 
             case LEFT:
                 this.x -= (float) delta / this.speed;
-                if (this.x < 1) {
+                if (this.x < (-this.width)) {
                     this.x = 800;
                 }
                 break;
@@ -40,13 +40,13 @@ public class Ellipse implements Actor {
             case UP:
                 this.y += (float) delta / this.speed;
                 if (this.y > 800) {
-                    this.y = 0;
+                    this.y = (-this.height);
                 }
                 break;
 
             case DOWN:
                 this.y -= (float) delta / this.speed;
-                if (this.y < 1) {
+                if (this.y < (-this.height)) {
                     this.y = 800;
                 }
                 break;

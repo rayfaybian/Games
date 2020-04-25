@@ -1,10 +1,23 @@
-package at.sufa.games;
+package at.sufa.firstGame;
 
 import org.newdawn.slick.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+/*Programmiere das Beispiel aus den Videos nach!
+
+Mache folgende Adaptierungen
+
+    Es gibt 10 Rectangles
+    Es gibt 10 Circles
+    Es gibt 10 Eclipsen (müssen wieder herinfliegen)
+
+Baue folgende Objekte dazu:
+
+    Baue die Rectangles so um, damit man im Konstruktor angeben kann ob sie von links nach rechts oder umgekehrt fliegen.
+    Die Circles sollen im laufe des Fluges wachsen - immer größer werden (der Durchmesser wächst)*/
 
 public class Objects extends BasicGame {
     private List<Actor> actors;
@@ -36,13 +49,14 @@ public class Objects extends BasicGame {
                     break;
             }
             Rectangle rectangle = new Rectangle((float) random.nextInt(800), (float) random.nextInt(800),
-                    random.nextInt(50), random.nextInt(50), (float) random.nextInt(25), recDirection);
+                    random.nextInt(100), random.nextInt(100), (float) random.nextInt(20+1),
+                    recDirection);
             this.actors.add(rectangle);
 
         }
         Circle.DIRECTION circleDirection = null;
         for (int i = 0; i < 10; i++) {
-            int myRandom = 1;
+            int myRandom = random.nextInt(3);
             switch (myRandom) {
                 case 0:
                     circleDirection = Circle.DIRECTION.LEFT;
@@ -58,12 +72,12 @@ public class Objects extends BasicGame {
                     break;
             }
             Circle circle = new Circle((float) random.nextInt(800), (float) random.nextInt(800),
-                    random.nextInt(50), (float) random.nextInt(25), circleDirection);
+                    random.nextInt(10), (float) random.nextInt(20+1), circleDirection);
             this.actors.add(circle);
 
         }
         Ellipse.DIRECTION ellipseDirection = null;
-        for (int i = 0; i < 10 ; i++) {
+        for (int i = 0; i < 10; i++) {
             int myRandom = random.nextInt(3);
             switch (myRandom) {
                 case 0:
@@ -81,31 +95,23 @@ public class Objects extends BasicGame {
             }
 
             Ellipse ellipse = new Ellipse((float) random.nextInt(800), (float) random.nextInt(80),
-                    random.nextInt(50),random.nextInt(50),(float) random.nextInt(25),
+                    random.nextInt(100), random.nextInt(100), (float) random.nextInt(20+1),
                     ellipseDirection);
             this.actors.add(ellipse);
-
         }
-
-
-
-
     }
 
     @Override
     public void update(GameContainer gameContainer, int delta) throws SlickException {
         for (Actor actor : actors) {
             actor.update(delta);
-
         }
-
     }
 
     @Override
     public void render(GameContainer gameContainer, Graphics graphics) throws SlickException {
         for (Actor actor : actors) {
             actor.render(graphics);
-
         }
     }
 
@@ -118,6 +124,4 @@ public class Objects extends BasicGame {
             e.printStackTrace();
         }
     }
-
-
 }
