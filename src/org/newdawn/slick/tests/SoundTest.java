@@ -66,9 +66,9 @@ public class SoundTest extends BasicGame {
 		} catch (IOException e) {
 			throw new SlickException("Failed to load engine", e);
 		}
-		music = musica = new Music("testdata/SMB-X.XM");
+		music = musica = new Music("testdata/Corona Wars Music.ogg");
 		//music = musica = new Music("testdata/theme.ogg", true);
-		musicb = new Music("testdata/kirby.ogg", true);
+		musicb = new Music("testdata/Chop Suey Music.ogg", true);
 		burp = new Sound("testdata/burp.aif");
 		
 		music.play();

@@ -1,4 +1,4 @@
-package at.sufa.firstGame;
+package at.sufa.games.firstgame;
 
 import org.newdawn.slick.*;
 

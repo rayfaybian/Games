@@ -1,17 +1,17 @@
-package at.sufa.firstGame;
+package at.sufa.games.firstgame;
 
 import org.newdawn.slick.Graphics;
 
-public class Ellipse implements Actor {
+public class Rectangle implements Actor {
     public enum DIRECTION {RIGHT, DOWN, LEFT, UP}
 
     private float x,y;
     private int width;
     private int height;
     private float speed;
-    private Ellipse.DIRECTION direction;
+    private DIRECTION direction;
 
-    public Ellipse(float x,float y, int width, int height, float speed, Ellipse.DIRECTION direction) {
+    public Rectangle(float x, float y, int width, int height, float speed, DIRECTION direction) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -20,8 +20,13 @@ public class Ellipse implements Actor {
         this.direction = direction;
     }
 
-    @Override
+    public void render(Graphics graphics) {
+        graphics.drawRect(this.x, this.y, this.width, this.height);
+
+    }
+
     public void update(int delta) {
+
         switch (direction) {
             case RIGHT:
                 this.x += (float) delta / this.speed;
@@ -39,7 +44,7 @@ public class Ellipse implements Actor {
 
             case UP:
                 this.y += (float) delta / this.speed;
-                if (this.y > 800) {
+                if(this.y > 800) {
                     this.y = (-this.height);
                 }
                 break;
@@ -52,12 +57,6 @@ public class Ellipse implements Actor {
                 break;
 
         }
-
-    }
-
-    @Override
-    public void render(Graphics graphics) {
-        graphics.drawOval(this.x,this.y, this.width, this.height);
 
     }
 }
