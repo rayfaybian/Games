@@ -45,4 +45,9 @@ public class FlyingVirus implements Actor {
         this.myImage.draw(this.x, this.y);
 
     }
+
+    @Override
+    public float getY() {
+        return 0;
+    }
 }

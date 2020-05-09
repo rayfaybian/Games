@@ -28,4 +28,9 @@ public class Stars implements Actor {
     public void update(GameContainer gameContainer, int delta) {
         this.downMoveStrategy.update(delta);
     }
+
+    @Override
+    public float getY() {
+        return 0;
+    }
 }

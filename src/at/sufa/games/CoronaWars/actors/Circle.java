@@ -23,6 +23,11 @@ public class Circle implements Actor {
         graphics.drawOval(this.x, this.y, this.diameter, this.diameter);
     }
 
+    @Override
+    public float getY() {
+        return 0;
+    }
+
     public void update(GameContainer gameContainer, int delta) {
     }
 }

@@ -8,7 +8,7 @@ import org.newdawn.slick.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StartScreen implements Actor {
+public class Menu implements Actor {
     private Music music;
 
     private Image backGround;
@@ -18,14 +18,14 @@ public class StartScreen implements Actor {
     private AngelCodeFont font;
 
 
-    public StartScreen() throws SlickException {
-        this.music = new Music("src/at/sufa/games/CoronaWars/music/Corona Wars Music.ogg");
+    public Menu() throws SlickException {
+        this.music = new Music("src/at/sufa/games/CoronaWars/music/Anthem.ogg");
         Image tmp1 = new Image("src/at/sufa/games/CoronaWars/graphics/wallpaper/Earth.png");
         this.backGround = tmp1.getScaledCopy(1200,765);
         Image tmp2 = new Image("src/at/sufa/games/CoronaWars/graphics/Corona Wars.png");
         this.logo = tmp2.getScaledCopy(1008,426);
-        this.viruses = new ArrayList<Virus>();
-        this.flyingViruses = new ArrayList<FlyingVirus>();
+        this.viruses = new ArrayList<>();
+        this.flyingViruses = new ArrayList<>();
 
         Virus virus1 = new Virus(400, -80, 400, 100);
         this.viruses.add(virus1);
@@ -92,6 +92,12 @@ public class StartScreen implements Actor {
 
 
     }
+
+    @Override
+    public float getY() {
+        return 0;
+    }
+
     public void stopMusic(){
         music.stop();
     }

@@ -23,7 +23,6 @@ public class CannonBall implements CollisionActor {
 
         if (this.y <= 5) {
             this.x = -100;
-            this.y = -200;
             this.collisionShape.setLocation(this.x, this.y);
         } else {
             this.y -= 5;
@@ -35,12 +34,17 @@ public class CannonBall implements CollisionActor {
     public void render(Graphics graphics) {
         if (this.y > 0) {
             graphics.fillOval(this.x, this.y, 10, 10);
-            graphics.draw(collisionShape);
+            //graphics.draw(collisionShape);
         }
+    }
+
+    public float getY() {
+        return y;
     }
 
     @Override
     public Shape getCollisionShape() {
         return collisionShape;
     }
+
 }

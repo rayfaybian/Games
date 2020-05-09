@@ -17,24 +17,26 @@ public class SpaceShip implements Actor {
     private Shape collisionShapeHorizontal;
     private List<CollisionActor> collisionShapes;
     private int liveCounter;
+    private Sound shipExplosion;
 
     public SpaceShip() throws SlickException {
         this.width = 175;
         this.height = 182;
-        Image tmp = new Image("src/at/sufa/games/CoronaWars/graphics/Spaceship.png");
-        this.rocketImage = tmp.getScaledCopy(this.width, this.height);
+        this.rocketImage = new Image("src/at/sufa/games/CoronaWars/graphics/Spaceship.png");
+        //this.rocketImage = tmp.getScaledCopy(this.width, this.height);
         this.x = 513;
         this.y = 480;
         this.collisionShapeVertical = new Rectangle(this.x, this.y, 50, 145);
         this.collisionShapeHorizontal = new Ellipse(this.x, this.y, 90, 30);
-        this.collisionShapes = new ArrayList<CollisionActor>();
-        this.liveCounter = 3;
+        this.collisionShapes = new ArrayList<>();
+        this.liveCounter = 5;
+        this.shipExplosion = new Sound("src/at/sufa/games/CoronaWars/Sounds/Ship Explosion.ogg");
     }
 
     @Override
     public void update(GameContainer gameContainer, int delta) {
         int shipspeed = 5;
-        if (this.x < -this.width) {
+        /*if (this.x < -this.width) {
             this.x = 1200;
         }
         if (this.x > 1200) {
@@ -45,21 +47,29 @@ public class SpaceShip implements Actor {
         }
         if (this.y > 675) {
             this.y = -this.height;
-        }
+        }*/
         if (gameContainer.getInput().isKeyDown(Input.KEY_DOWN)) {
-            this.y += shipspeed;
+            if (this.y <= 530) {
+                this.y += shipspeed;
+            }
         }
         if (gameContainer.getInput().isKeyDown(Input.KEY_UP)) {
-            this.y -= shipspeed;
+            if (this.y >= -50) {
+                this.y -= shipspeed;
+            }
         }
         if (gameContainer.getInput().isKeyDown(Input.KEY_LEFT)) {
-            this.x -= shipspeed;
+            if (this.x >= -75) {
+                this.x -= shipspeed;
+            }
         }
         if (gameContainer.getInput().isKeyDown(Input.KEY_RIGHT)) {
-            this.x += shipspeed;
+            if (this.x <= 1100) {
+                this.x += shipspeed;
+            }
         }
         this.collisionShapeVertical.setLocation(this.x + 62, this.y + 35);
-        this.collisionShapeHorizontal.setLocation(this.x-3, this.y + 112);
+        this.collisionShapeHorizontal.setLocation(this.x - 3, this.y + 112);
 
         for (CollisionActor collisionShape : collisionShapes) {
             if (this.collisionShapeHorizontal.intersects(collisionShape.getCollisionShape())
@@ -68,6 +78,7 @@ public class SpaceShip implements Actor {
                 this.x = 513;
                 this.y = 480;
                 this.liveCounter--;
+                shipExplosion.play();
             }
         }
     }
@@ -75,7 +86,7 @@ public class SpaceShip implements Actor {
     @Override
     public void render(Graphics graphics) {
         rocketImage.draw(this.x, this.y);
-            }
+    }
 
     public void addCollisionPartner(CollisionActor collisionShape) {
         this.collisionShapes.add(collisionShape);
@@ -91,5 +102,8 @@ public class SpaceShip implements Actor {
 
     public int getLiveCounter() {
         return liveCounter;
+    }
+    public void reset(){
+        this.liveCounter = 3;
     }
 }

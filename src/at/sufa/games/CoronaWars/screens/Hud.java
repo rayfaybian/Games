@@ -10,10 +10,11 @@ public class Hud implements Actor {
     private int lives;
     private int hits;
     private int score;
+    private int level;
     private AngelCodeFont font;
 
-
     public Hud() throws SlickException {
+        this.level = 1;
         this.lives = 3;
         this.hits = 0;
         this.score = 0;
@@ -33,30 +34,43 @@ public class Hud implements Actor {
         this.score = score;
     }
 
+    public void setLevel(int level){this.level = level;}
+
     @Override
     public void update(GameContainer gameContainer, int delta) {
 
     }
 
     public String getLives() {
-        return "Lives: " + Integer.toString(lives);
+        return "Lives: " + lives;
     }
 
     public String getHits() {
-        return "Hits: " + Integer.toString(hits);
+        return "Hits: " + hits;
     }
 
     public String getScore() {
-        return "Score: " + Integer.toString(score);
+        return "Score: " + score;
     }
 
-    public int getHitNumber(){return hits;}
+    public String getLevel(){return"Level: " + level;}
+
+    public int getFinalScore(){return score;}
+
+    public int getRemainingLives(){return lives;}
+
+
+    @Override
+    public float getY() {
+        return 0;
+    }
 
     @Override
     public void render(Graphics graphics) {
         font.drawString(10, 620, getScore());
         font.drawString(10, 580, getHits());
         font.drawString(10,540, getLives());
+        font.drawString(10,500,getLevel());
 
     }
 }

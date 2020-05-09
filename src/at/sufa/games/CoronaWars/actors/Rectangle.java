@@ -33,4 +33,8 @@ public class Rectangle implements Actor {
                 }
 
     }
+    @Override
+    public float getY() {
+        return 0;
+    }
 }

@@ -8,4 +8,6 @@ public interface Actor {
     void update(GameContainer gameContainer, int delta);
 
     void render(Graphics graphics);
+
+    float getY();
 }

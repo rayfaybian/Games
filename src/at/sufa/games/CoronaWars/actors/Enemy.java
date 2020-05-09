@@ -16,47 +16,43 @@ public class Enemy implements CollisionActor {
     private Shape collisionShape;
     Random random = new Random();
     private List<CollisionActor> collisionShapes;
-    private int hitCounter;
-    private int score;
-    private int liveCounter;
+    private HitCounter hitCounter;
 
-    public Enemy(int diameter) throws SlickException {
+
+    public Enemy(int diameter, float y) throws SlickException {
+        this.hitCounter = new HitCounter();
         this.diameter = diameter;
         this.x = (float) random.nextInt(1114);
-        this.y = - diameter; //set to -110
-        this.speed = (float)diameter/4;
+        this.y = y;
+        this.speed = (float) diameter / 4;
         Image tmp = new Image("src/at/sufa/games/CoronaWars/graphics/Corona.png");
         this.enemy = tmp.getScaledCopy(this.diameter, this.diameter);
-        this.collisionShape = new Circle(this.x,this.y, (float)(this.diameter-5)/2);
-        this.collisionShapes = new ArrayList<CollisionActor>();
-        this.hitCounter = 0;
-        this.score = 0;
-        this.liveCounter = 0;
+        this.collisionShape = new Circle(this.x, this.y, (float) (this.diameter - 5) / 2);
+        this.collisionShapes = new ArrayList<>();
     }
 
     @Override
     public void update(GameContainer gameContainer, int delta) {
-        if(this.y >= 675){
-            this.y = -10 -diameter;
-            this.liveCounter --;
+        if (this.y >= 675) {
+            this.y = -40 - diameter;
+            this.x = (float) random.nextInt(1114);
+            hitCounter.decreaseScore();
         }
         this.y += (float) delta / (this.speed);
         this.collisionShape.setLocation(this.x + 2, this.y + 3);
 
-        for (CollisionActor collisionShape : collisionShapes) {
-            if (this.collisionShape.intersects(collisionShape.getCollisionShape())) {
-                countHit();
-                countScore();
-                System.out.println("Hit!" + getHitCounter());
+        for (CollisionActor projectile : collisionShapes) {
+            if (this.collisionShape.intersects(projectile.getCollisionShape())) {
+                HitCounter.increment();
+                System.out.println("Hit!" + hitCounter.getHits());
                 this.y = -diameter;
-                this.x = random.nextInt(1114);
-
+                this.x = random.nextInt(1200 - diameter);
 
             }
         }
     }
 
-    public void addCollisionPartner(CannonBall cannonBall) {
+    public void addCollisionPartner(CollisionActor cannonBall) {
         this.collisionShapes.add(cannonBall);
     }
 
@@ -64,10 +60,7 @@ public class Enemy implements CollisionActor {
     public void render(Graphics graphics) {
         this.enemy.draw(this.x, this.y);
         //graphics.draw(collisionShape);
-        graphics.setColor(Color.black);
-        graphics.fillRect(1000,575,200,100);
-        graphics.setColor(Color.white);
-        graphics.drawString("hits: " + hitCounter,1020,600);
+
     }
 
     @Override
@@ -76,23 +69,28 @@ public class Enemy implements CollisionActor {
     }
 
     public int getHitCounter() {
-        return hitCounter;
+        return hitCounter.getHits();
+    }
+
+    public int getLevel() {
+        return hitCounter.getLevel();
+    }
+
+    public void reset() {
+        hitCounter.reset();
+
     }
 
     public int getScore() {
-        return score;
+        return hitCounter.getScore();
     }
 
-    public void countHit(){
-        this.hitCounter += 1;
+    public float getY() {
+        return y;
     }
 
-    public void countScore(){
-        this.score = score + random.nextInt(100);
+    public void setY() {
+        this.y = -(float) random.nextInt(400);
+        this.collisionShape.setLocation(this.x,this.y);
     }
-
-    public int getLiveCounter(){
-        return liveCounter;
-    }
-
 }
