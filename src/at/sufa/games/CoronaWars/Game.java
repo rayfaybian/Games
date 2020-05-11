@@ -35,7 +35,6 @@ public class Game extends BasicGame {
     private Sound loser;
     private Sound winner;
 
-
     //Booleans
     private boolean gameStart;
     private boolean gameWon;
@@ -57,7 +56,7 @@ public class Game extends BasicGame {
     }
 
     @Override
-    public void init(GameContainer gameContainer) throws SlickException {
+    public void init(GameContainer gameContainer) throws SlickException {//main init method
         initBooleans();
         initLists();
         initGraphics();
@@ -73,9 +72,9 @@ public class Game extends BasicGame {
         long t = System.currentTimeMillis();
         this.end = t + 13940;
 
-    }//main init method
+    }
     @Override
-    public void update(GameContainer gameContainer, int delta) throws SlickException {
+    public void update(GameContainer gameContainer, int delta) throws SlickException {//main update method
         if ((!gameWon) && (!gameLost)) {
 
             if (System.currentTimeMillis() < end) {
@@ -110,9 +109,9 @@ public class Game extends BasicGame {
         if (gameWon) updateGameWin(gameContainer, delta);
 
         if (gameLost) updateGameLose(gameContainer, delta);
-    }//main update method
+    }
     @Override
-    public void render(GameContainer gameContainer, Graphics graphics) throws SlickException {
+    public void render(GameContainer gameContainer, Graphics graphics) throws SlickException {//main render method
         if ((!gameWon) && (!gameLost)) {
             if (System.currentTimeMillis() < end) {
                 startscreen.render(graphics);
@@ -148,9 +147,9 @@ public class Game extends BasicGame {
             losescreen.render(graphics);
             inGameMusic.stop();
         }
-    }//main render method
+    }
 
-    public static void main(String[] argv) {
+    public static void main(String[] argv) {//main method
         try {
             AppGameContainer container = new AppGameContainer(new Game("Corona Wars"));
             container.setDisplayMode(1200, 675, false);
@@ -158,10 +157,10 @@ public class Game extends BasicGame {
         } catch (SlickException e) {
             e.printStackTrace();
         }
-    }//main method
+    }
 
     @Override
-    public void keyPressed(int key, char c) {
+    public void keyPressed(int key, char c) {//key inputs
         if ((gameStart) && (tutorial)) {
             if (key == Input.KEY_S) {
                 tutorial = false;
@@ -202,20 +201,20 @@ public class Game extends BasicGame {
                 }
             }
         }
-    }//key inputs
+    }
 
 
     //init methods:
 
-    private void initScreens() throws SlickException {
+    private void initScreens() throws SlickException {//initialises screens
         this.startscreen = new Startscreen();
         this.menu = new Menu();
         this.winscreen = new Winscreen();
         this.losescreen = new Losescreen();
         this.hud = new Hud();
-    }//initialises screens
+    }
 
-    private void initEnemies() throws SlickException {
+    private void initEnemies() throws SlickException {//initialises enemies
         Random r = new Random();
 
         Enemy enemy;
@@ -249,9 +248,9 @@ public class Game extends BasicGame {
             this.level8Enemies.add(enemy);
             this.spaceShip.addCollisionPartner(enemy);
         }
-    }//initialises enemies
+    }
 
-    private void initLists() {
+    private void initLists() {//initialises various lists
         this.backgroundActors = new ArrayList<>();
         this.cannonBalls = new ArrayList<>();
         this.enemies = new ArrayList<>();
@@ -259,15 +258,15 @@ public class Game extends BasicGame {
         this.levelTwoEnemies = new ArrayList<>();
         this.levelThreeEnemies = new ArrayList<>();
         this.level8Enemies = new ArrayList<>();
-    }//initialises various lists
+    }
 
-    private void initBooleans() {
+    private void initBooleans() {//initialises various booleans
         gameStart = false;
         gameWon = false;
         gameLost = false;
         gameReset = false;
         tutorial = true;
-    }//initialises various booleans
+    }
 
     private void initGraphics() throws SlickException {
         this.font = new AngelCodeFont("testdata/hiero.fnt", "testdata/hiero.png");
@@ -290,17 +289,17 @@ public class Game extends BasicGame {
         }
     }//initialises images, fonts ang graphics
 
-    private void initSounds() throws SlickException {
+    private void initSounds() throws SlickException {//initialises music & sounds
         inGameMusic = new Music("src/at/sufa/games/CoronaWars/music/Danger Zone.ogg");
         laserSound = new Sound("src/at/sufa/games/CoronaWars/Sounds/Laser.ogg");
         loser = new Sound("src/at/sufa/games/CoronaWars/Sounds/Loser.ogg");
         winner = new Sound("src/at/sufa/games/CoronaWars/Sounds/Yeah Baby.ogg");
-    }//initialises music & sounds
+    }
 
 
     //update methods:
 
-    private void getValues() {
+    private void getValues() {//gets values for various counters
         for (Enemy value : enemies) {
             hud.setHits(value.getHitCounter());
             hud.setScore(value.getScore());
@@ -311,9 +310,9 @@ public class Game extends BasicGame {
         if (hud.getRemainingLives() < 1) {
             gameLost = true;
         }
-    }//gets values for various counters
+    }
 
-    private void updateEnemies(GameContainer gameContainer, int delta) {
+    private void updateEnemies(GameContainer gameContainer, int delta) {//updates enemies depending on current level
         switch (level) {
 
             case 1:
@@ -405,15 +404,15 @@ public class Game extends BasicGame {
                 gameWon = true;
                 break;
         }
-    }//updates enemies depending on current level
+    }
 
-    private void getLevel() {
+    private void getLevel() {//checks and updates current level
         for (Enemy value : enemies) {
             this.level = value.getLevel();
         }
-    }//checks and updates current level
+    }
 
-    private void updateGameLose(GameContainer gameContainer, int delta) {
+    private void updateGameLose(GameContainer gameContainer, int delta) {//reset method for when game is lost
         gameStart = false;
         losescreen.update(gameContainer, delta);
         spaceShip.reset();
@@ -426,9 +425,9 @@ public class Game extends BasicGame {
             }
             gameReset = true;
         }
-    }//reset method for when game is lost
+    }
 
-    private void updateGameWin(GameContainer gameContainer, int delta) {
+    private void updateGameWin(GameContainer gameContainer, int delta) {//reset method for when game is won
         winscreen.setScore(hud.getFinalScore());
         winscreen.update(gameContainer, delta);
         spaceShip.reset();
@@ -443,7 +442,7 @@ public class Game extends BasicGame {
             }
             gameReset = true;
         }
-    }//reset method for when game is won
+    }
 
 
     //render methods:
@@ -516,29 +515,29 @@ public class Game extends BasicGame {
         }
     }//renders different enemies depending on current level
 
-    private void renderTutorialGraphics(Graphics graphics) {
+    private void renderTutorialGraphics(Graphics graphics) {//onscreen instructions during tutorial phase
         graphics.setColor(Color.black);
         graphics.fillRect(450, 200, 300, 100);
         graphics.setColor(Color.white);
         graphics.drawString("Use arrowkeys to fly", 505, 220);
         graphics.drawString("Press Y to shoot", 522, 240);
         graphics.drawString("Press S when you're ready", 487, 260);
-    }//onscreen instructions during tutorial phase
+    }
 
-    private void renderCannonballs(Graphics graphics) {
+    private void renderCannonballs(Graphics graphics) {//renders fired cannonballs
         for (CannonBall cannonball : cannonBalls) {
             cannonball.render(graphics);
 
         }
-    }//renders fired cannonballs
+    }
 
-    private void renderBackdrop(Graphics graphics) {
+    private void renderBackdrop(Graphics graphics) {//renders background visuals
         this.wallpaper.draw(0, 0);
 
         for (Actor actor : backgroundActors) {
             actor.render(graphics);
 
         }
-    }//renders background visuals
+    }
 
 }
