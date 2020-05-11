@@ -14,9 +14,9 @@ public class Winscreen implements Actor {
     public Winscreen() throws SlickException {
         this.font = new AngelCodeFont("testdata/hiero.fnt", "testdata/hiero.png");
     }
+
     @Override
     public void update(GameContainer gameContainer, int delta) {
-
     }
 
     @Override
@@ -39,6 +39,7 @@ public class Winscreen implements Actor {
     public float getY() {
         return 0;
     }
+
     public void setScore(int score){
         this.score = score;
     }

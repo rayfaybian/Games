@@ -11,12 +11,11 @@ import java.util.Random;
 public class Game extends BasicGame {
 
     //Screens
-    private Startscreen startscreen; //Screen that opens when program is started
-    private Menu menu; //Main Menu
-    private Hud hud; //Onscreen information during gameplay
+    private Startscreen startscreen;
+    private Menu menu;
+    private Hud hud;
     private Winscreen winscreen;
     private Losescreen losescreen;
-
 
     //Lists
     private List<Actor> backgroundActors; //stars flying through space
@@ -29,60 +28,252 @@ public class Game extends BasicGame {
 
     //Actors
     private SpaceShip spaceShip;
-    private Enemy enemy;
 
-    private Image wallpaper;
-
-    private boolean gameStart;
+    //Music & Sounds
     private Music inGameMusic;
     private Sound laserSound;
     private Sound loser;
     private Sound winner;
 
-    private long t;
-    private long end;
 
-    private int level;
-
+    //Booleans
+    private boolean gameStart;
     private boolean gameWon;
     private boolean gameLost;
     private boolean gameReset;
     private boolean tutorial;
 
-    private long time;
     private AngelCodeFont font;
+    private Image wallpaper;
 
-    public Game(String title) throws SlickException {
+    private int level;
+
+    private long time;
+    private long end;
+
+
+    public Game(String title){
         super(title);
-
     }
 
     @Override
     public void init(GameContainer gameContainer) throws SlickException {
+        initBooleans();
+        initLists();
+        initGraphics();
+        initSounds();
+        initScreens();
+
+        this.spaceShip = new SpaceShip();
+
+        initEnemies();
+
+        this.level = 1;
+
+        long t = System.currentTimeMillis();
+        this.end = t + 13940;
+
+    }//main init method
+    @Override
+    public void update(GameContainer gameContainer, int delta) throws SlickException {
+        if ((!gameWon) && (!gameLost)) {
+
+            if (System.currentTimeMillis() < end) {
+
+                startscreen.update(gameContainer, delta);
+
+            } else if ((!gameStart) && (System.currentTimeMillis() > end)) {
+                this.menu.update(gameContainer, delta);
+            } else {
+                gameReset = false;
+
+                getLevel();
+
+                for (Actor actor : backgroundActors) {
+                    actor.update(gameContainer, delta);
+                }
+
+                this.spaceShip.update(gameContainer, delta);
+
+                for (CannonBall cannonball : cannonBalls) {
+                    cannonball.update(gameContainer, delta);
+
+                }
+                if (!tutorial) {
+                    updateEnemies(gameContainer, delta);
+                }
+
+                getValues();
+            }
+
+        }
+        if (gameWon) updateGameWin(gameContainer, delta);
+
+        if (gameLost) updateGameLose(gameContainer, delta);
+    }//main update method
+    @Override
+    public void render(GameContainer gameContainer, Graphics graphics) throws SlickException {
+        if ((!gameWon) && (!gameLost)) {
+            if (System.currentTimeMillis() < end) {
+                startscreen.render(graphics);
+            } else if ((!gameStart) && (System.currentTimeMillis() > end)) {
+                this.menu.render(graphics);
+            } else if (gameStart) {
+
+                renderBackdrop(graphics);
+                renderCannonballs(graphics);
+                spaceShip.render(graphics);
+
+                if (tutorial) {
+                    renderTutorialGraphics(graphics);
+                }
+
+                if (!tutorial) {
+                    if (System.currentTimeMillis() <= (time + 3000)) {
+
+                        font.drawString(460, 300, "Kill the Virus!");
+                    }
+
+                    hud.render(graphics);
+                    renderLevelEnemies(graphics);
+                }
+            }
+        }
+        if (gameWon) {
+            winscreen.render(graphics);
+            inGameMusic.stop();
+        }
+
+        if (gameLost) {
+            losescreen.render(graphics);
+            inGameMusic.stop();
+        }
+    }//main render method
+
+    public static void main(String[] argv) {
+        try {
+            AppGameContainer container = new AppGameContainer(new Game("Corona Wars"));
+            container.setDisplayMode(1200, 675, false);
+            container.start();
+        } catch (SlickException e) {
+            e.printStackTrace();
+        }
+    }//main method
+
+    @Override
+    public void keyPressed(int key, char c) {
+        if ((gameStart) && (tutorial)) {
+            if (key == Input.KEY_S) {
+                tutorial = false;
+                inGameMusic.play();
+                time = System.currentTimeMillis();
+            }
+        }
+
+        if (key == Input.KEY_ESCAPE) {
+            System.exit(0);
+        }
+
+        if ((gameLost) || (gameWon)) {
+            if (key == Input.KEY_SPACE) {
+                inGameMusic.play();
+            }
+        }
+
+        if (!gameStart && (System.currentTimeMillis() > end)) {
+            if (key == Input.KEY_SPACE) {
+                menu.stopMusic();
+                gameStart = true;
+                gameLost = false;
+                gameWon = false;
+            }
+        }
+
+        if (gameStart) {
+            if (key == Input.KEY_Y) {
+                laserSound.play();
+                CannonBall cbLeft = new CannonBall(this.spaceShip.getX() + 38, this.spaceShip.getY() + 108);
+                this.cannonBalls.add(cbLeft);
+                CannonBall cbRight = new CannonBall(this.spaceShip.getX() + 124, this.spaceShip.getY() + 108);
+                this.cannonBalls.add(cbRight);
+                for (Enemy enemy : enemies) {
+                    enemy.addCollisionPartner(cbLeft);
+                    enemy.addCollisionPartner(cbRight);
+                }
+            }
+        }
+    }//key inputs
+
+
+    //init methods:
+
+    private void initScreens() throws SlickException {
+        this.startscreen = new Startscreen();
+        this.menu = new Menu();
+        this.winscreen = new Winscreen();
+        this.losescreen = new Losescreen();
+        this.hud = new Hud();
+    }//initialises screens
+
+    private void initEnemies() throws SlickException {
+        Random r = new Random();
+
+        Enemy enemy;
+        for (int i = 0; i < 5; i++) {
+
+            enemy = new Enemy(100, -(100 + r.nextInt(100)));
+            this.enemies.add(enemy);
+            this.levelOneEnemies.add(enemy);
+            this.spaceShip.addCollisionPartner(enemy);
+        }
+
+        for (int i = 0; i < 8; i++) {
+
+            enemy = new Enemy(50, -(100 + r.nextInt(100)));
+            this.enemies.add(enemy);
+            this.levelTwoEnemies.add(enemy);
+            this.spaceShip.addCollisionPartner(enemy);
+        }
+
+        for (int i = 0; i < 12; i++) {
+
+            enemy = new Enemy(25, -(100 + r.nextInt(100)));
+            this.enemies.add(enemy);
+            this.levelThreeEnemies.add(enemy);
+            this.spaceShip.addCollisionPartner(enemy);
+        }
+
+        for (int i = 0; i < 25; i++) {
+            enemy = new Enemy(17, -(100 + r.nextInt(100)));
+            this.enemies.add(enemy);
+            this.level8Enemies.add(enemy);
+            this.spaceShip.addCollisionPartner(enemy);
+        }
+    }//initialises enemies
+
+    private void initLists() {
+        this.backgroundActors = new ArrayList<>();
+        this.cannonBalls = new ArrayList<>();
+        this.enemies = new ArrayList<>();
+        this.levelOneEnemies = new ArrayList<>();
+        this.levelTwoEnemies = new ArrayList<>();
+        this.levelThreeEnemies = new ArrayList<>();
+        this.level8Enemies = new ArrayList<>();
+    }//initialises various lists
+
+    private void initBooleans() {
         gameStart = false;
         gameWon = false;
         gameLost = false;
         gameReset = false;
         tutorial = true;
+    }//initialises various booleans
 
-        this.level = 1;
-
+    private void initGraphics() throws SlickException {
         this.font = new AngelCodeFont("testdata/hiero.fnt", "testdata/hiero.png");
 
-        this.startscreen = new Startscreen();
-        this.menu = new Menu();
-
-        inGameMusic = new Music("src/at/sufa/games/CoronaWars/music/Danger Zone.ogg");
-        laserSound = new Sound("src/at/sufa/games/CoronaWars/Sounds/Laser.ogg");
-        loser = new Sound("src/at/sufa/games/CoronaWars/Sounds/Loser.ogg");
-        winner = new Sound("src/at/sufa/games/CoronaWars/Sounds/Yeah Baby.ogg");
-
-        //initialises wallpaper and stars
         Image tmp = new Image("src/at/sufa/games/CoronaWars/graphics/wallpaper/Space.jpg");
         this.wallpaper = tmp.getScaledCopy(1200, 675);
-
-        this.backgroundActors = new ArrayList<>();
-        this.cannonBalls = new ArrayList<>();
 
         Random random = new Random();
         for (int i = 0; i < 600; i++) {
@@ -97,395 +288,257 @@ public class Game extends BasicGame {
             Stars stars3 = new Stars(random.nextInt(1200), random.nextInt(675), 15, 7);
             this.backgroundActors.add(stars3);
         }
+    }//initialises images, fonts ang graphics
+
+    private void initSounds() throws SlickException {
+        inGameMusic = new Music("src/at/sufa/games/CoronaWars/music/Danger Zone.ogg");
+        laserSound = new Sound("src/at/sufa/games/CoronaWars/Sounds/Laser.ogg");
+        loser = new Sound("src/at/sufa/games/CoronaWars/Sounds/Loser.ogg");
+        winner = new Sound("src/at/sufa/games/CoronaWars/Sounds/Yeah Baby.ogg");
+    }//initialises music & sounds
 
 
-        this.spaceShip = new SpaceShip();
+    //update methods:
 
-        //initializes enemies for all levels
-        this.levelOneEnemies = new ArrayList<>();
-        this.levelTwoEnemies = new ArrayList<>();
-        this.levelThreeEnemies = new ArrayList<>();
-        this.level8Enemies = new ArrayList<>();
-
-        this.enemies = new ArrayList<>();
-        Random r = new Random();
-
-        for (int i = 0; i < 5; i++) {
-
-            this.enemy = new Enemy(100, -(100 + r.nextInt(100)));
-            this.enemies.add(enemy);
-            this.levelOneEnemies.add(enemy);
-            this.spaceShip.addCollisionPartner(enemy);
+    private void getValues() {
+        for (Enemy value : enemies) {
+            hud.setHits(value.getHitCounter());
+            hud.setScore(value.getScore());
+            hud.setLevel(value.getLevel());
         }
+        hud.setLives(spaceShip.getLiveCounter());
 
-        for (int i = 0; i < 8; i++) {
-
-            this.enemy = new Enemy(50, -(100 + r.nextInt(100)));
-            this.enemies.add(enemy);
-            this.levelTwoEnemies.add(enemy);
-            this.spaceShip.addCollisionPartner(enemy);
+        if (hud.getRemainingLives() < 1) {
+            gameLost = true;
         }
+    }//gets values for various counters
 
-        for (int i = 0; i < 12; i++) {
+    private void updateEnemies(GameContainer gameContainer, int delta) {
+        switch (level) {
 
-            this.enemy = new Enemy(25, -(100 + r.nextInt(100)));
-            this.enemies.add(enemy);
-            this.levelThreeEnemies.add(enemy);
-            this.spaceShip.addCollisionPartner(enemy);
-        }
-        for (int i = 0; i < 25; i++) {
-            this.enemy = new Enemy(17, -(100 + r.nextInt(100)));
-            this.enemies.add(enemy);
-            this.level8Enemies.add(enemy);
-            this.spaceShip.addCollisionPartner(enemy);
-
-        }
-
-
-        this.hud = new Hud();
-        this.winscreen = new Winscreen();
-        this.losescreen = new Losescreen();
-
-        long t = System.currentTimeMillis();
-        this.end = t + 12400;
-
-    }
-
-
-    @Override
-    public void keyPressed(int key, char c) {
-
-
-        if(tutorial){
-        if (key == Input.KEY_S) {
-            tutorial = false;
-            inGameMusic.play();
-            time = System.currentTimeMillis();}
-        }
-
-        if (key == Input.KEY_ESCAPE) {
-            System.exit(0);
-        }
-
-        if((gameLost)||(gameWon)){
-            if(key == Input.KEY_SPACE){
-                inGameMusic.play();
-            }
-        }
-
-        if (!gameStart && (System.currentTimeMillis() > end)) {
-            if (key == Input.KEY_SPACE) {
-                menu.stopMusic();
-                gameStart = true;
-                gameLost = false;
-                gameWon = false;
-            }
-        }
-        if (gameStart) {
-            if (key == Input.KEY_Y) {
-                laserSound.play();
-                CannonBall cbLeft = new CannonBall(this.spaceShip.getX() + 38, this.spaceShip.getY() + 108);
-                this.cannonBalls.add(cbLeft);
-                CannonBall cbRight = new CannonBall(this.spaceShip.getX() + 124, this.spaceShip.getY() + 108);
-                this.cannonBalls.add(cbRight);
-                for (Enemy enemy : enemies) {
-                    enemy.addCollisionPartner(cbLeft);
-                    enemy.addCollisionPartner(cbRight);
-                }
-            }
-        }
-    }
-
-
-    @Override
-    public void update(GameContainer gameContainer, int delta) throws SlickException {
-        if ((!gameWon) && (!gameLost)) {
-            if (System.currentTimeMillis() < end) {
-                startscreen.update(gameContainer, delta);
-            } else if ((!gameStart) && (System.currentTimeMillis() > end)) {
-                this.menu.update(gameContainer, delta);
-            } else {
-                gameReset = false;
-
-
-                //levelcounter
-                for (Enemy value : enemies) {
-                    this.level = value.getLevel();
-                }
-
-                this.spaceShip.update(gameContainer, delta);
-
-
-                for (Actor actor : backgroundActors) {
+            case 1:
+                for (Actor actor : levelOneEnemies) {
                     actor.update(gameContainer, delta);
-
                 }
-                for (CannonBall cannonball : cannonBalls) {
-                    cannonball.update(gameContainer, delta);
+                break;
 
+            case 2:
+                for (Enemy levelOneEnemy : levelOneEnemies) {
+                    levelOneEnemy.setY();
                 }
-                if (!tutorial) {
+                for (Actor actor : levelTwoEnemies) {
+                    actor.update(gameContainer, delta);
+                }
+                break;
 
-
-                    switch (level) {
-
-                        case 1:
-                            for (Actor actor : levelOneEnemies) {
-                                actor.update(gameContainer, delta);
-                            }
-                            break;
-
-                        case 2:
-                            for (Enemy levelOneEnemy : levelOneEnemies) {
-                                levelOneEnemy.setY();
-                            }
-                            for (Actor actor : levelTwoEnemies) {
-                                actor.update(gameContainer, delta);
-                            }
-                            break;
-
-                        case 3:
-                            for (Enemy levelTwoEnemy : levelTwoEnemies) {
-                                levelTwoEnemy.setY();
-                            }
-
-                            for (Actor actor : levelThreeEnemies) {
-                                actor.update(gameContainer, delta);
-                            }
-                            break;
-                        case 4:
-                            for (Actor actor : levelOneEnemies) {
-                                actor.update(gameContainer, delta);
-                            }
-
-                            for (Actor actor : levelTwoEnemies) {
-                                actor.update(gameContainer, delta);
-                            }
-                            break;
-                        case 5:
-                            for (Enemy levelTwoEnemy : levelTwoEnemies) {
-                                levelTwoEnemy.setY();
-                            }
-                            for (Actor actor : levelOneEnemies) {
-                                actor.update(gameContainer, delta);
-                            }
-                            for (Actor actor : levelThreeEnemies) {
-                                actor.update(gameContainer, delta);
-                            }
-                            break;
-                        case 6:
-                            for (Enemy levelOneEnemy : levelOneEnemies) {
-                                levelOneEnemy.setY();
-                            }
-                            for (Actor actor : levelTwoEnemies) {
-                                actor.update(gameContainer, delta);
-                            }
-                            for (Actor actor : levelThreeEnemies) {
-                                actor.update(gameContainer, delta);
-                            }
-                            break;
-                        case 7:
-                            for (Actor actor : levelOneEnemies) {
-                                actor.update(gameContainer, delta);
-                            }
-                            for (Actor actor : levelTwoEnemies) {
-                                actor.update(gameContainer, delta);
-                            }
-                            for (Actor actor : levelThreeEnemies) {
-                                actor.update(gameContainer, delta);
-                            }
-                            break;
-                        case 8:
-                            for (Enemy levelOneEnemy : levelOneEnemies) {
-                                levelOneEnemy.setY();
-                            }
-                            for (Enemy levelTwoEnemy : levelTwoEnemies) {
-                                levelTwoEnemy.setY();
-                            }
-                            for (Enemy levelThreeEnemy : levelThreeEnemies) {
-                                levelThreeEnemy.setY();
-                            }
-                            for (Actor actor : level8Enemies) {
-                                actor.update(gameContainer, delta);
-                            }
-                            break;
-                        case 9:
-                            gameWon = true;
-                            break;
-                    }
+            case 3:
+                for (Enemy levelTwoEnemy : levelTwoEnemies) {
+                    levelTwoEnemy.setY();
                 }
 
-                for (Enemy value : enemies) {
-                    hud.setHits(value.getHitCounter());
-                    hud.setScore(value.getScore());
-                    hud.setLevel(value.getLevel());
+                for (Actor actor : levelThreeEnemies) {
+                    actor.update(gameContainer, delta);
+                }
+                break;
+            case 4:
+                for (Actor actor : levelOneEnemies) {
+                    actor.update(gameContainer, delta);
                 }
 
-                hud.setLives(spaceShip.getLiveCounter());
-
-                if (hud.getRemainingLives() == 0) {
-                    gameLost = true;
-
+                for (Enemy levelThreeEnemy : levelThreeEnemies) {
+                    levelThreeEnemy.setY();
                 }
 
-            }
-            winscreen.setScore(hud.getFinalScore());
+
+                for (Actor actor : levelTwoEnemies) {
+                    actor.update(gameContainer, delta);
+                }
+                break;
+            case 5:
+                for (Enemy levelTwoEnemy : levelTwoEnemies) {
+                    levelTwoEnemy.setY();
+                }
+                for (Actor actor : levelOneEnemies) {
+                    actor.update(gameContainer, delta);
+                }
+                for (Actor actor : levelThreeEnemies) {
+                    actor.update(gameContainer, delta);
+                }
+                break;
+            case 6:
+                for (Enemy levelOneEnemy : levelOneEnemies) {
+                    levelOneEnemy.setY();
+                }
+                for (Actor actor : levelTwoEnemies) {
+                    actor.update(gameContainer, delta);
+                }
+                for (Actor actor : levelThreeEnemies) {
+                    actor.update(gameContainer, delta);
+                }
+                break;
+            case 7:
+                for (Actor actor : levelOneEnemies) {
+                    actor.update(gameContainer, delta);
+                }
+                for (Actor actor : levelTwoEnemies) {
+                    actor.update(gameContainer, delta);
+                }
+                for (Actor actor : levelThreeEnemies) {
+                    actor.update(gameContainer, delta);
+                }
+                break;
+            case 8:
+                for (Enemy levelOneEnemy : levelOneEnemies) {
+                    levelOneEnemy.setY();
+                }
+                for (Enemy levelTwoEnemy : levelTwoEnemies) {
+                    levelTwoEnemy.setY();
+                }
+                for (Enemy levelThreeEnemy : levelThreeEnemies) {
+                    levelThreeEnemy.setY();
+                }
+                for (Actor actor : level8Enemies) {
+                    actor.update(gameContainer, delta);
+                }
+                break;
+            case 9:
+                gameWon = true;
+                break;
         }
-        if (gameWon) {
-            gameStart = false;
-            winscreen.update(gameContainer, delta);
-            spaceShip.reset();
+    }//updates enemies depending on current level
 
-            if (!gameReset) {
-                winner.play();
-                for (Enemy value : enemies) {
-                    value.reset();
-                    value.setY();
-                }
-                gameReset = true;
-            }
+    private void getLevel() {
+        for (Enemy value : enemies) {
+            this.level = value.getLevel();
         }
+    }//checks and updates current level
 
-        if (gameLost) {
+    private void updateGameLose(GameContainer gameContainer, int delta) {
+        gameStart = false;
+        losescreen.update(gameContainer, delta);
+        spaceShip.reset();
 
-            gameStart = false;
-            losescreen.update(gameContainer, delta);
-            spaceShip.reset();
-
-            if (!gameReset) {
-                loser.play();
-                for (Enemy value : enemies) {
-                    value.reset();
-                    value.setY();
-                }
-                gameReset = true;
+        if (!gameReset) {
+            loser.play();
+            for (Enemy value : enemies) {
+                value.reset();
+                value.setY();
             }
+            gameReset = true;
         }
-    }
+    }//reset method for when game is lost
+
+    private void updateGameWin(GameContainer gameContainer, int delta) {
+        winscreen.setScore(hud.getFinalScore());
+        winscreen.update(gameContainer, delta);
+        spaceShip.reset();
+
+        gameStart = false;
+
+        if (!gameReset) {
+            winner.play();
+            for (Enemy value : enemies) {
+                value.reset();
+                value.setY();
+            }
+            gameReset = true;
+        }
+    }//reset method for when game is won
 
 
-    @Override
-    public void render(GameContainer gameContainer, Graphics graphics) throws SlickException {
-        if ((!gameWon) && (!gameLost)) {
-            if (System.currentTimeMillis() < end) {
-                startscreen.render(graphics);
-            } else if ((!gameStart) && (System.currentTimeMillis() > end)) {
-                this.menu.render(graphics);
-            } else if (gameStart) {
-                this.wallpaper.draw(0, 0);
-                for (Actor actor : backgroundActors) {
+    //render methods:
+
+    private void renderLevelEnemies(Graphics graphics) {
+
+        switch (level) {
+            case 1:
+                for (Actor actor : levelOneEnemies) {
                     actor.render(graphics);
-
                 }
-                for (CannonBall cannonball : cannonBalls) {
-                    cannonball.render(graphics);
+                break;
 
+            case 2:
+                for (Actor actor : levelTwoEnemies) {
+                    actor.render(graphics);
                 }
-                spaceShip.render(graphics);
-                if (tutorial) {
-                    graphics.setColor(Color.black);
-                    graphics.fillRect(450, 200, 300, 100);
-                    graphics.setColor(Color.white);
-                    graphics.drawString("Use arrowkeys to fly", 505, 220);
-                    graphics.drawString("Press Y to shoot", 522, 240);
-                    graphics.drawString("Press S when you're ready", 487, 260);
+                break;
+
+            case 3:
+                for (Actor actor : levelThreeEnemies) {
+                    actor.render(graphics);
                 }
+                break;
 
-                if (!tutorial) {
-                    if (System.currentTimeMillis() <= (time + 3000)) {
-
-                        font.drawString(460, 300, "Kill the Virus!");
-                    }
-
-                    switch (level) {
-                        case 1:
-                            for (Actor actor : levelOneEnemies) {
-                                actor.render(graphics);
-                            }
-
-
-                            break;
-
-                        case 2:
-                            for (Actor actor : levelTwoEnemies) {
-                                actor.render(graphics);
-                            }
-                            break;
-
-                        case 3:
-                            for (Actor actor : levelThreeEnemies) {
-                                actor.render(graphics);
-                            }
-                            break;
-                        case 4:
-                            for (Actor actor : levelOneEnemies) {
-                                actor.render(graphics);
-                            }
-                            for (Actor actor : levelTwoEnemies) {
-                                actor.render(graphics);
-                            }
-                            break;
-                        case 5:
-                            for (Actor actor : levelOneEnemies) {
-                                actor.render(graphics);
-                            }
-                            for (Actor actor : levelThreeEnemies) {
-                                actor.render(graphics);
-                            }
-                            break;
-                        case 6:
-                            for (Actor actor : levelTwoEnemies) {
-                                actor.render(graphics);
-                            }
-                            for (Actor actor : levelThreeEnemies) {
-                                actor.render(graphics);
-                            }
-                            break;
-                        case 7:
-                            for (Actor actor : levelOneEnemies) {
-                                actor.render(graphics);
-                            }
-                            for (Actor actor : levelTwoEnemies) {
-                                actor.render(graphics);
-                            }
-                            for (Actor actor : levelThreeEnemies) {
-                                actor.render(graphics);
-                            }
-                            break;
-                        case 8:
-                            for (Actor actor : level8Enemies) {
-                                actor.render(graphics);
-                            }
-                            break;
-                    }
+            case 4:
+                for (Actor actor : levelOneEnemies) {
+                    actor.render(graphics);
                 }
-
-                if (!tutorial) {
-                    hud.render(graphics);
+                for (Actor actor : levelTwoEnemies) {
+                    actor.render(graphics);
                 }
+                break;
 
+            case 5:
+                for (Actor actor : levelOneEnemies) {
+                    actor.render(graphics);
+                }
+                for (Actor actor : levelThreeEnemies) {
+                    actor.render(graphics);
+                }
+                break;
 
-            }
+            case 6:
+                for (Actor actor : levelTwoEnemies) {
+                    actor.render(graphics);
+                }
+                for (Actor actor : levelThreeEnemies) {
+                    actor.render(graphics);
+                }
+                break;
+
+            case 7:
+                for (Actor actor : levelOneEnemies) {
+                    actor.render(graphics);
+                }
+                for (Actor actor : levelTwoEnemies) {
+                    actor.render(graphics);
+                }
+                for (Actor actor : levelThreeEnemies) {
+                    actor.render(graphics);
+                }
+                break;
+
+            case 8:
+                for (Actor actor : level8Enemies) {
+                    actor.render(graphics);
+                }
+                break;
         }
-        if (gameWon) {
-            winscreen.render(graphics);
-            inGameMusic.stop();
-        }
+    }//renders different enemies depending on current level
 
-        if (gameLost) {
-            losescreen.render(graphics);
-            inGameMusic.stop();
-        }
-    }
+    private void renderTutorialGraphics(Graphics graphics) {
+        graphics.setColor(Color.black);
+        graphics.fillRect(450, 200, 300, 100);
+        graphics.setColor(Color.white);
+        graphics.drawString("Use arrowkeys to fly", 505, 220);
+        graphics.drawString("Press Y to shoot", 522, 240);
+        graphics.drawString("Press S when you're ready", 487, 260);
+    }//onscreen instructions during tutorial phase
 
-    public static void main(String[] argv) {
-        try {
-            AppGameContainer container = new AppGameContainer(new Game("Corona Wars"));
-            container.setDisplayMode(1200, 675, false);
-            container.start();
-        } catch (SlickException e) {
-            e.printStackTrace();
+    private void renderCannonballs(Graphics graphics) {
+        for (CannonBall cannonball : cannonBalls) {
+            cannonball.render(graphics);
+
         }
-    }
+    }//renders fired cannonballs
+
+    private void renderBackdrop(Graphics graphics) {
+        this.wallpaper.draw(0, 0);
+
+        for (Actor actor : backgroundActors) {
+            actor.render(graphics);
+
+        }
+    }//renders background visuals
 
 }

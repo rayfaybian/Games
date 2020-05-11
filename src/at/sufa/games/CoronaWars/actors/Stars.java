@@ -11,22 +11,22 @@ public class Stars implements Actor {
     private float diameter;
 
 
-
     public Stars(int x, int y, float speed, float diameter) {
-        this.downMoveStrategy = new DownMoveStrategy(x,y,speed);
+        this.downMoveStrategy = new DownMoveStrategy(x, y, speed);
         this.speed = speed;
         this.diameter = diameter;
 
-
     }
-    @Override
-    public void render(Graphics graphics) {
-        graphics.fillOval(downMoveStrategy.getX(), downMoveStrategy.getY(),diameter,diameter);
 
-    }
     @Override
     public void update(GameContainer gameContainer, int delta) {
         this.downMoveStrategy.update(delta);
+    }
+
+    @Override
+    public void render(Graphics graphics) {
+        graphics.fillOval(downMoveStrategy.getX(), downMoveStrategy.getY(), diameter, diameter);
+
     }
 
     @Override

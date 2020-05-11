@@ -19,6 +19,19 @@ public class Hud implements Actor {
         this.hits = 0;
         this.score = 0;
         this.font = new AngelCodeFont("testdata/hiero.fnt", "testdata/hiero.png");
+    }
+
+    @Override
+    public void update(GameContainer gameContainer, int delta) {
+
+    }
+
+    @Override
+    public void render(Graphics graphics) {
+        font.drawString(10, 620, getScore());
+        font.drawString(10, 580, getHits());
+        font.drawString(10, 540, getLives());
+        font.drawString(10, 500, getLevel());
 
     }
 
@@ -34,11 +47,8 @@ public class Hud implements Actor {
         this.score = score;
     }
 
-    public void setLevel(int level){this.level = level;}
-
-    @Override
-    public void update(GameContainer gameContainer, int delta) {
-
+    public void setLevel(int level) {
+        this.level = level;
     }
 
     public String getLives() {
@@ -53,24 +63,20 @@ public class Hud implements Actor {
         return "Score: " + score;
     }
 
-    public String getLevel(){return"Level: " + level;}
+    public String getLevel() {
+        return "Level: " + level;
+    }
 
-    public int getFinalScore(){return score;}
+    public int getFinalScore() {
+        return score;
+    }
 
-    public int getRemainingLives(){return lives;}
-
+    public int getRemainingLives() {
+        return lives;
+    }
 
     @Override
     public float getY() {
         return 0;
-    }
-
-    @Override
-    public void render(Graphics graphics) {
-        font.drawString(10, 620, getScore());
-        font.drawString(10, 580, getHits());
-        font.drawString(10,540, getLives());
-        font.drawString(10,500,getLevel());
-
     }
 }

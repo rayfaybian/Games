@@ -11,7 +11,6 @@ public class DownMoveStrategy implements MoveStrategy {
         this.y = y;
         this.speed = speed;
     }
-
     public void update(int delta){
         Random random = new Random();
         this.y += (float)delta/this.speed;

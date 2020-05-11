@@ -11,19 +11,17 @@ import java.util.List;
 public class SpaceShip implements Actor {
     private Image rocketImage;
     private float x, y;
-    private int width;
-    private int height;
     private Shape collisionShapeVertical;
     private Shape collisionShapeHorizontal;
     private List<CollisionActor> collisionShapes;
     private int liveCounter;
     private Sound shipExplosion;
+    private boolean isCrashed;
 
     public SpaceShip() throws SlickException {
-        this.width = 175;
-        this.height = 182;
+        int width = 175;
+        int height = 182;
         this.rocketImage = new Image("src/at/sufa/games/CoronaWars/graphics/Spaceship.png");
-        //this.rocketImage = tmp.getScaledCopy(this.width, this.height);
         this.x = 513;
         this.y = 480;
         this.collisionShapeVertical = new Rectangle(this.x, this.y, 50, 145);
@@ -36,18 +34,7 @@ public class SpaceShip implements Actor {
     @Override
     public void update(GameContainer gameContainer, int delta) {
         int shipspeed = 5;
-        /*if (this.x < -this.width) {
-            this.x = 1200;
-        }
-        if (this.x > 1200) {
-            this.x = -this.width;
-        }
-        if (this.y < -this.height) {
-            this.y = 675;
-        }
-        if (this.y > 675) {
-            this.y = -this.height;
-        }*/
+
         if (gameContainer.getInput().isKeyDown(Input.KEY_DOWN)) {
             if (this.y <= 530) {
                 this.y += shipspeed;
@@ -71,6 +58,15 @@ public class SpaceShip implements Actor {
         this.collisionShapeVertical.setLocation(this.x + 62, this.y + 35);
         this.collisionShapeHorizontal.setLocation(this.x - 3, this.y + 112);
 
+        detectCollision();
+    }
+
+    @Override
+    public void render(Graphics graphics) {
+        rocketImage.draw(this.x, this.y);
+    }
+
+    private void detectCollision() {
         for (CollisionActor collisionShape : collisionShapes) {
             if (this.collisionShapeHorizontal.intersects(collisionShape.getCollisionShape())
                     || this.collisionShapeVertical.intersects(collisionShape.getCollisionShape())) {
@@ -79,13 +75,9 @@ public class SpaceShip implements Actor {
                 this.y = 480;
                 this.liveCounter--;
                 shipExplosion.play();
+
             }
         }
-    }
-
-    @Override
-    public void render(Graphics graphics) {
-        rocketImage.draw(this.x, this.y);
     }
 
     public void addCollisionPartner(CollisionActor collisionShape) {
@@ -103,7 +95,9 @@ public class SpaceShip implements Actor {
     public int getLiveCounter() {
         return liveCounter;
     }
-    public void reset(){
-        this.liveCounter = 3;
+
+    public void reset() {
+        this.liveCounter = 5;
     }
+
 }

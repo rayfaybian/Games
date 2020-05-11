@@ -8,7 +8,6 @@ import org.newdawn.slick.SlickException;
 import java.util.Random;
 
 public class Virus implements Actor {
-    private int size;
     private float x,y;
     private float speed;
     private float xEnd;
@@ -19,14 +18,13 @@ public class Virus implements Actor {
 
     public Virus(int size, float x, float y, float speed) throws SlickException {
         Random random = new Random();
-        this.size = size;
         this.x = x;
         this.y = y;
         this.speed = speed;
         this.xStart = x;
         this.xEnd = x + random.nextInt(40) + 25;
         Image tmp = new Image("src/at/sufa/games/CoronaWars/graphics/Corona.png");
-        this.myImage = tmp.getScaledCopy(this.size,this.size);
+        this.myImage = tmp.getScaledCopy(size, size);
         goLeft = false;
     }
 
