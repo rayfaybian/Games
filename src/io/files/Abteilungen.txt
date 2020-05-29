@@ -1,3 +1,4 @@
+PersonenName;Abteilung;
 Franz Müller;Vorstand
 Max Mustermann;Einkauf
 Frida Haudrauf;Einkauf Europa

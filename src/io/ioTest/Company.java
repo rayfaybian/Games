@@ -25,5 +25,24 @@ public class Company {
         for (Department department : departments) {
             System.out.println(department.getName() + ": " + department.getPeople());
         }
+        System.out.println("--------------------------------------------");
+
+        for (Department department : departments) {
+            department.printDepartmentStructure();
+
+        }
+    }
+
+    public boolean checkDepartments(String name) {
+        boolean departementExists = false;
+
+            for (Department department : departments) {
+                if (department.getName().equalsIgnoreCase(name)) {
+                    departementExists = true;
+                    break;
+                }
+            }
+
+        return departementExists;
     }
 }
