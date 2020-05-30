@@ -1,2 +1,2 @@
-brand;color;drivetype;horsepower;price
-Audi;Red;Diesel;100;78000
+brand;model,color;drivetype;horsepower;price
+BMW;5er;Green;Diesel;200;78000
